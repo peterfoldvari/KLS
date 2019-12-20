@@ -1,7 +1,7 @@
 * v 1.0 P. Foldvari dec 2019
 * This is an implementation of the KLS estiamtor by Prof. Jan F. Kiviet, University of Amsterdam
 
-program define kls, eclass
+program define kls, eclass byable(recall)
 
  
 syntax varlist (numeric ts fv min=2) [if] [in] , endog(numlist)
@@ -10,10 +10,11 @@ gettoken depvar indepvar: varlist
 marksample touse
 mata: m_kls("`varlist'", "`touse'",(`endog'))
 
-tempname b V rho
+tempname b V rho 
 matrix `b' = r(b)'
 matrix `V' = r(V)
 matrix `rho' = r(rho)
+ 
 local N = r(N)
 local df = r(df)
 local r2=r(r2)
@@ -21,15 +22,25 @@ local k=r(k)
 local F=r(F)
 local Fp=1-chi2(`k',`F')
 local rmse=r(rmse)
+local mss=r(mss)
+local rss=r(rss)
+
+
 matname `b' `indepvar' , c(.)
 matname `V' `indepvar'
 ereturn post `b' `V', depname(`depvar') obs(`N') esample(`touse') dof(`df')  
 ereturn matrix rho = `rho'
 ereturn scalar r2 = `r2'
+ereturn scalar mss = `mss'
+ereturn scalar rss = `rss'
 ereturn scalar F = `F'
 ereturn scalar Fp = `Fp'
 ereturn scalar rmse = `rmse'
+ereturn scalar df_m = `k'
+ereturn scalar rank = `k'
+
 ereturn local cmd = "kls"
+ereturn local cmdline = "kls price mpg weight, endog(`endog')"
 di "                                  "
 di as text "KLS estimator"
 di _skip(48)  as text "Number of obs   =           " as result `N'
@@ -39,7 +50,11 @@ di _skip(48)  as text "R-squared       =    " as result %9.4f `r2'
 di _skip(48)  as text "Root MSE        =    " as result %9.5f `rmse'
 ereturn display
 di as text "assumed correlations =    "  as result `endog'
+
 end
+
+
+
 
 capture mata mata drop m_kls()
  
@@ -104,5 +119,7 @@ st_numscalar("r(r2)",1-SSR/SST)
 st_numscalar("r(F)", F)
 st_numscalar("r(k)", k)
 st_numscalar("r(rmse)",sqrt(s2_ukls)) 
+st_numscalar("r(mss)", SST-SSR)
+st_numscalar("r(rss)",SSR)
 }
 end
