@@ -50,6 +50,8 @@ min=2)
 {marker examples}{...}
 {title:Examples}
 
+{title: 1. Cross sectional data}
+
 Use built-in auto dataset:
 .  sysuse auto.dta
 (1978 Automobile Data)
@@ -112,6 +114,45 @@ KLS estimator
 ------------------------------------------------------------------------------
 assumed correlations =    .2
 
+KLS with bootstrap standard errors.
+
+. bs, rep(1000) nodots: kls price mpg weight foreign, endog(0.2)
+
+Bootstrap results                               Number of obs     =         74
+                                                Replications      =      1,000
+                                                R-squared         =     0.4284
+                                                Root MSE          =  2269.5902
+
+------------------------------------------------------------------------------
+             |   Observed   Bootstrap                         Normal-based
+       price |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         mpg |  -212.3417   114.5114    -1.85   0.064    -436.7798    12.09645
+      weight |   1.921854   1.010179     1.90   0.057    -.0580607    3.901769
+     foreign |   3286.631   734.7282     4.47   0.000     1846.591    4726.672
+------------------------------------------------------------------------------
+
+
+KLS with bootstrap biasec corrected standard errors.
+
+. bs, rep(1000) nodots bca: kls price mpg weight foreign, endog(0.2)
+
+Bootstrap results                               Number of obs     =         74
+                                                Replications      =      1,000
+                                                R-squared         =     0.4284
+                                                Root MSE          =  2269.5902
+
+------------------------------------------------------------------------------
+             |   Observed   Bootstrap                         Normal-based
+       price |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         mpg |  -212.3417   110.4818    -1.92   0.055     -428.882    4.198654
+      weight |   1.921854   .9964509     1.93   0.054    -.0311539    3.874862
+     foreign |   3286.631   750.4866     4.38   0.000     1815.705    4757.558
+------------------------------------------------------------------------------
+
+
+
 KLS, assuming that both mpg and weight are endogenous: rho=(0.2 -0.5 0) 
 
 . kls price mpg weight foreign, endog(0.2 -0.5)
@@ -142,7 +183,8 @@ assumed correlations =    .2 -.5
 {synopt:{cmd:e(Fp)}}  p-value for the F-test {p_end}
 {synopt:{cmd:e(rmse)}}  Root mean squared error, a.k.a. the standard error of the regression {p_end}
 {p2col 5 15 19 2: Locals}{p_end}
-{synopt:{cmd:e(cmd)}}  {p_end}
+{synopt:{cmd:e(cmdline)}}  command used 
+  {p_end}
 {p2col 5 15 19 2: Matrices}{p_end}
 {synopt:{cmd:e(rho)}} The vector of correlations assumed {p_end}
 

@@ -1,5 +1,5 @@
 * v 1.0 P. Foldvari dec 2019
-* This is an implementation of the KLS estiamtor by Prof. Jan F. Kiviet, University of Amsterdam
+* This is an implementation of the KLS estimator by Prof. Jan F. Kiviet, University of Amsterdam
 
 program define kls, eclass byable(recall)
 
@@ -7,6 +7,7 @@ program define kls, eclass byable(recall)
 syntax varlist (numeric ts fv min=2) [if] [in] , endog(numlist)
 local endog: subinstr local endog " " ", ", all
 gettoken depvar indepvar: varlist
+_fv_check_depvar `depvar'
 marksample touse
 mata: m_kls("`varlist'", "`touse'",(`endog'))
 
@@ -19,16 +20,17 @@ local N = r(N)
 local df = r(df)
 local r2=r(r2)
 local k=r(k)
+local k_c=`k' - diag0cnt(`xpxi') - 1
 local F=r(F)
 local Fp=1-chi2(`k',`F')
 local rmse=r(rmse)
 local mss=r(mss)
 local rss=r(rss)
-
+local ll= -0.5*`N'*ln(2*c(pi)*`rss'/`N')-`rss'/(2*`rss'/`N')
 
 matname `b' `indepvar' , c(.)
 matname `V' `indepvar'
-ereturn post `b' `V', depname(`depvar') obs(`N') esample(`touse') dof(`df')  
+ereturn post `b' `V', depname(`depvar') obs(`N') esample(`touse') dof(`df')  buildfvinfo
 ereturn matrix rho = `rho'
 ereturn scalar r2 = `r2'
 ereturn scalar mss = `mss'
@@ -38,9 +40,11 @@ ereturn scalar Fp = `Fp'
 ereturn scalar rmse = `rmse'
 ereturn scalar df_m = `k'
 ereturn scalar rank = `k'
-
-ereturn local cmd = "kls"
+ereturn scalar ll= `ll'
+*ereturn local cmd = "kls"
 ereturn local cmdline = "kls price mpg weight, endog(`endog')"
+*ereturn local predict = "kls_p"
+
 di "                                  "
 di as text "KLS estimator"
 di _skip(48)  as text "Number of obs   =           " as result `N'
@@ -83,6 +87,7 @@ exit(499)
 }
 
 // OLS estimates
+
 bols = invsym(cross(X,X))*cross(X,y)
 uols= y-X*bols
 s2_uols=uols'*uols/(n-k-1)  // OLS estimate of error variance
