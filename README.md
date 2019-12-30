@@ -8,3 +8,8 @@ Contains the code for the KLS estimator, which returns a standard regression tab
 
 ## kls2.ado 
 This code is for a grid-based inference by the KLS estimator. In short, this code estimates the coefficents by KLS on a grid of assumed correlations between the first explanatory variable and the error-term. The minimum and maximum values of the correlation is supplied by the user, and the number of steps can be changed as well. The code automatically creates a summary table, saves the results in a dta.file, and finally, it plots the coefficient with 95% confidence intervals. This code only works with a single endogenous variable and requires kls.ado to function.
+
+
+## kls_c.ado 
+This code is for a grid-based inference by the KLS estimator, with two endogenous variables. It prepares contour plots of the coefficents and the p-values. Requires kls.ado to function.
+I plan to make a single code out of this and kls2.
